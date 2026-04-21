@@ -28,16 +28,30 @@ express-checkout flow.
 
 ## Workflow
 
-Ask the user which action they want (use AskUserQuestion if unclear):
+### Step 1: Identify the target plan
 
-- **list** — show current proxies (with filters)
+Webshare accounts can own multiple plans simultaneously. Before any action that
+touches proxies, config, or IP allowlists, call `GET /subscription/plan/` to
+list the user's plans and their IDs. If there is more than one:
+
+- Show the user the list (plan id, proxy type/subtype, count, status)
+- Ask which plan they want to operate on (use AskUserQuestion)
+- Pass that id as `?plan_id=<id>` on every subsequent call
+
+If there is exactly one plan, you can skip asking — but still pass `plan_id`
+explicitly so the intent is obvious in the command history.
+
+### Step 2: Run the action
+
+Ask which action the user wants (use AskUserQuestion if unclear):
+
+- **plans** — list all subscription plans
+- **list** — show proxies on a plan (with filters)
 - **download** — dump the proxy list to a file for app consumption
-- **refresh** — trigger on-demand refresh of the rotating pool
 - **replace** — replace specific broken proxies
 - **config** — view or update proxy config (rotation, backbone, IP-auth-only)
 - **ipauth** — manage the allowlist of IPs that can use the proxies
 - **stats** — recent bandwidth / request counts
-- **plan** — show current subscription plan
 - **buy** — open an express-checkout URL in the browser (see below)
 
 For every action, read `references/API.md` to get the exact endpoint, params,
