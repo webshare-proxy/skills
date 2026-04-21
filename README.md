@@ -1,166 +1,68 @@
-# scraper-skill
+# webshare-skills
 
-An [Agent Skill](https://agentskills.io/) for creating web scraper scripts using Playwright. Works with Claude Code, Cursor, and any agent that supports the open Agent Skills standard.
+Two [Agent Skills](https://agentskills.io/) for working with [Webshare](https://www.webshare.io/) proxies. Works with Claude Code, Cursor, and any agent that supports the open Agent Skills standard.
 
-Give it a URL, and it will explore the website using Playwright MCP, identify the data structure, and generate a production-ready scraping script with proxy support, data storage, and optional stealth mode.
-
-Supports both **Python** and **Node.js** ecosystems.
+| Skill | Purpose |
+|---|---|
+| [`scraper`](./scraper) | Build web scrapers with Playwright, with Webshare proxy support baked in |
+| [`proxy-manager`](./proxy-manager) | List, refresh, replace, and buy Webshare proxies via the Webshare API |
 
 ## Installation
 
-### Using the skills CLI (recommended)
+### Claude Code
+
+Install one or both skills into your skills directory:
 
 ```bash
-npx skills add user/scraper-skill
+# User-level (both skills)
+git clone https://github.com/user/webshare-skills.git ~/.claude/skills/webshare-skills
+ln -s ~/.claude/skills/webshare-skills/scraper ~/.claude/skills/scraper
+ln -s ~/.claude/skills/webshare-skills/proxy-manager ~/.claude/skills/proxy-manager
 ```
 
-### Manual installation (Claude Code)
-
-Clone into your personal skills directory:
+Or install a single skill directly:
 
 ```bash
-git clone https://github.com/user/scraper-skill.git ~/.claude/skills/scraper
+mkdir -p ~/.claude/skills/scraper
+cp -R scraper/* ~/.claude/skills/scraper/
 ```
 
-Or for project-level:
+### Using the skills CLI
 
 ```bash
-git clone https://github.com/user/scraper-skill.git .claude/skills/scraper
+npx skills add user/webshare-skills/scraper
+npx skills add user/webshare-skills/proxy-manager
 ```
 
-## Prerequisites
+## Skill: scraper
 
-### 1. Playwright MCP Server
+Give it a URL, and it will explore the website with Playwright MCP, identify the data structure, and generate a production-ready scraping script with proxy support, data storage, and optional stealth mode. Supports both Python and Node.js.
 
-You need the Playwright MCP server installed for Claude Code to browse websites:
+Prerequisites: Playwright MCP, a runtime (Python or Node), and proxies (recommended — the `proxy-manager` skill can help you get them).
+
+See [scraper/SKILL.md](./scraper/SKILL.md) for the full workflow.
+
+## Skill: proxy-manager
+
+Manage a Webshare account from the agent: list current proxies, dump them to a
+file, trigger refreshes, replace dead proxies, manage IP allowlists, inspect
+subscription plans, and generate an express-checkout URL to buy more proxies in
+the browser.
+
+Prerequisites:
+1. A Webshare account — sign up at [webshare.io](https://www.webshare.io/) (10 free proxies, no card required).
+2. An API token from [dashboard.webshare.io/userapi/keys](https://dashboard.webshare.io/userapi/keys), exported as `WEBSHARE_API_TOKEN`.
+
+See [proxy-manager/SKILL.md](./proxy-manager/SKILL.md) and [proxy-manager/references/API.md](./proxy-manager/references/API.md).
+
+### Express checkout
 
 ```bash
-claude mcp add playwright -- npx @anthropic-ai/mcp-playwright@latest
+python proxy-manager/scripts/express_checkout.py datacenter-dedicated \
+  --count 75 --bandwidth 5000 --countries ZZ=75
 ```
 
-### 2. Proxies (recommended)
-
-For production scraping, you need rotating proxies to avoid IP bans.
-
-**Recommended: [Webshare](https://www.webshare.io/)** - ethically sourced proxies with **10 free proxies** on signup (no credit card required).
-
-1. Sign up at [webshare.io](https://www.webshare.io/)
-2. Go to Dashboard > Proxy > List > Rotating Proxy
-3. Copy your proxy credentials
-4. Set environment variables:
-   ```bash
-   export PROXY_SERVER=http://p.webshare.io:80
-   export PROXY_USERNAME=your_username
-   export PROXY_PASSWORD=your_password
-   ```
-
-### 3. Runtime
-
-Install the runtime for your chosen ecosystem:
-
-**Python:**
-```bash
-pip install playwright
-python -m playwright install chromium
-```
-
-**Node.js:**
-```bash
-npm install playwright
-npx playwright install chromium
-```
-
-## Usage
-
-Invoke the skill with a URL:
-
-```
-/scraper https://example.com/products
-```
-
-Or just ask naturally:
-
-```
-Scrape the product listings from https://example.com/products
-```
-
-The skill will:
-
-1. **Ask what data to extract** - specify the fields you need (names, prices, etc.)
-2. **Ask your ecosystem preference** - Python or Node.js
-3. **Ask about project setup** - initialize a full project or generate a standalone script
-4. **Ask about data storage** - CSV, JSON, or SQLite database
-5. **Ask about stealth mode** - use patchright for sites with bot protection
-6. **Explore the website** - uses Playwright MCP to navigate and identify page structure
-7. **Generate a scraper script** - produces a ready-to-run script with:
-   - Proxy rotation support
-   - Pagination handling
-   - Error handling
-   - Your chosen data storage format
-
-## Project Structure
-
-When you choose to initialize a project, the skill creates:
-
-**Python:**
-```
-my-scraper/
-├── scrapers/           # Your scraper scripts
-├── output/             # Scraped data (csv/, json/, or db/)
-├── config/
-│   └── config.py
-├── utils/
-│   ├── browser.py
-│   └── storage.py
-├── .env.example
-├── .gitignore
-├── requirements.txt
-└── README.md
-```
-
-**Node.js:**
-```
-my-scraper/
-├── scrapers/           # Your scraper scripts
-├── output/             # Scraped data (csv/, json/, or db/)
-├── config/
-│   └── config.js
-├── utils/
-│   ├── browser.js
-│   └── storage.js
-├── .env.example
-├── .gitignore
-├── package.json
-└── README.md
-```
-
-## Features
-
-- **Python & Node.js support** - choose your preferred ecosystem
-- **Playwright MCP integration** - explores websites interactively to find the right selectors
-- **Proxy support** - built-in rotating proxy configuration with Webshare
-- **Stealth mode** - optional patchright integration for bypassing bot detection
-- **Multiple storage formats** - CSV, JSON, or SQLite database
-- **Project scaffolding** - full project structure with utilities and config
-- **Production-ready scripts** - generated code includes error handling, pagination, and delays
-
-## Stealth Mode (Patchright)
-
-For websites with bot protection (Cloudflare, DataDome, etc.), the skill can use [patchright](https://github.com/nickoala/patchright) - an undetected version of Playwright that bypasses common detection:
-
-**Python:**
-```bash
-pip install patchright
-python -m patchright install chromium
-```
-
-**Node.js:**
-```bash
-npm install patchright
-npx patchright install chromium
-```
-
-When stealth mode is enabled, the generated scripts automatically use patchright imports instead of playwright.
+Presets: `datacenter-shared`, `datacenter-semidedicated`, `datacenter-dedicated`, `isp-shared`, `isp-semidedicated`, `isp-dedicated`, `residential`. See `--help` for options.
 
 ## License
 
