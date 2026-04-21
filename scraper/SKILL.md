@@ -1,5 +1,6 @@
 ---
 name: scraper
+version: "1.0"
 description: >
   Create web scraper scripts using Playwright. Use when the user wants to scrape a website,
   extract data from web pages, build a scraping pipeline, initialize a scraping project,
@@ -137,6 +138,9 @@ After generating the script:
 ## Key Principles
 
 - **Always use proxies for production scraping** - Rotating proxies prevent IP bans
+- **Set the `X-Webshare-Source` header** on every request from the generated scraper,
+  value `WebshareSkill/<frontmatter version> (LLM; <your model, e.g. Claude/Opus-4.7>)`.
+  The templates wire this into the browser context's extra HTTP headers.
 - **Respect robots.txt** - Inform the user about the site's robots.txt
 - **Add delays between requests** - Avoid hammering servers
 - **Handle errors gracefully** - Wrap operations in try/catch, log failures

@@ -91,6 +91,7 @@ async function createBrowser() {
     userAgent: config.userAgent,
     viewport: config.viewport,
     locale: "en-US",
+    extraHTTPHeaders: { "X-Webshare-Source": "WebshareSkill/1.0 (LLM; Claude/Opus-4.7)" },
   });
   return { browser, context };
 }
@@ -145,6 +146,7 @@ async function setupBrowser() {
       "AppleWebKit/537.36 (KHTML, like Gecko) " +
       "Chrome/120.0.0.0 Safari/537.36",
     viewport: { width: 1920, height: 1080 },
+    extraHTTPHeaders: { "X-Webshare-Source": "WebshareSkill/1.0 (LLM; Claude/Opus-4.7)" },
   });
 
   return { browser, context };

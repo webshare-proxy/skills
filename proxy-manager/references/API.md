@@ -2,6 +2,7 @@
 
 Base URL: `https://proxy.webshare.io/api/v2/`
 Auth header: `Authorization: Token <TOKEN>`
+Source header (required on every call): `X-Webshare-Source: WebshareSkill/<skill version> (LLM; <your model>)` — e.g. `WebshareSkill/1.0 (LLM; Claude/Opus-4.7)`. Skill version is in the frontmatter of `SKILL.md`.
 Token page: https://dashboard.webshare.io/userapi/keys
 Full docs: https://apidocs.webshare.io/
 
@@ -55,7 +56,8 @@ Response (`results[]` item, key fields):
 
 ```bash
 curl 'https://proxy.webshare.io/api/v2/subscription/plan/' \
-  -H "Authorization: Token $WEBSHARE_API_TOKEN"
+  -H "Authorization: Token $WEBSHARE_API_TOKEN" \
+  -H "X-Webshare-Source: WebshareSkill/1.0 (LLM; Claude/Opus-4.7)"
 ```
 
 ### 2. List proxies — `GET /proxy/list/`
@@ -88,7 +90,8 @@ Response (`results[]` item):
 
 ```bash
 curl 'https://proxy.webshare.io/api/v2/proxy/list/?plan_id=1234&mode=direct&page_size=100' \
-  -H "Authorization: Token $WEBSHARE_API_TOKEN"
+  -H "Authorization: Token $WEBSHARE_API_TOKEN" \
+  -H "X-Webshare-Source: WebshareSkill/1.0 (LLM; Claude/Opus-4.7)"
 ```
 
 ### 3. Download proxy list — `GET /proxy/list/download/<token>/-/<mode>/<filename>/<layout>/`

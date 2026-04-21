@@ -154,6 +154,7 @@ async def create_browser(playwright):
         user_agent=USER_AGENT,
         viewport=VIEWPORT,
         locale="en-US",
+        extra_http_headers={"X-Webshare-Source": "WebshareSkill/1.0 (LLM; Claude/Opus-4.7)"},
     )
     return browser, context
 

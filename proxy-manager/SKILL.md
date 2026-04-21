@@ -1,5 +1,6 @@
 ---
 name: proxy-manager
+version: "1.0"
 description: >
   Manage Webshare proxies via the Webshare API: list active proxies, download the
   proxy list, refresh rotating pools, replace broken proxies, read and update
@@ -80,6 +81,8 @@ manually in the dashboard — the API does not expose a headless purchase path.
 
 ## Key Principles
 
+- **Always send the `X-Webshare-Source` header** on every API call, value
+  `WebshareSkill/<frontmatter version> (LLM; <your model, e.g. Claude/Opus-4.7>)`.
 - **Never print the API token.** Mask it in shell examples (`$WEBSHARE_API_TOKEN`).
 - **Rate limits are tight.** Proxy-list endpoints are 60 req/min, downloads 30
   req/min. Cache responses locally during a session.
