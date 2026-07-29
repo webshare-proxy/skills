@@ -66,6 +66,22 @@ the same PR and say why.
 - **Never print the API key.** The CLI reads `WEBSHARE_API_KEY` from the
   environment.
 
+## The catalog index
+
+Each skill's frontmatter `metadata:` block is the source of truth for the
+Skills Catalog page in the dashboard. The schema is versioned in
+[`schema/skill-metadata.schema.json`](./schema/skill-metadata.schema.json),
+and the machine-readable index is generated with:
+
+```bash
+python3 scripts/build_metadata.py    # writes metadata.json
+```
+
+`metadata.json` is intentionally not committed (it's gitignored); the
+dashboard developer generates and consumes it manually. CI only validates
+that it *can* be built, so adding or changing a skill is just a repo commit —
+a malformed skill fails the build instead of breaking the catalog page.
+
 ## Validate locally
 
 ```bash
@@ -73,10 +89,6 @@ pip install pyyaml jsonschema
 python3 scripts/build_metadata.py --check     # frontmatter + schema
 python3 scripts/check_cli_commands.py         # every webshare command exists
 ```
-
-`build_metadata.py` without `--check` writes `metadata.json` — the generated
-catalog index. It is intentionally not committed; the dashboard developer
-generates and consumes it manually.
 
 `check_cli_commands.py` needs the `webshare` binary
 (`brew install webshare-proxy/tap/webshare`, or

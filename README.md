@@ -55,21 +55,6 @@ A Webshare account comes with 10 free proxies, no card required —
 Every skill states its own prerequisites (and what it will **not** do) at the
 top of its `SKILL.md`.
 
-## The catalog index
-
-Each skill carries catalog metadata in its `SKILL.md` frontmatter (category,
-tags, install command, example prompts, related skills). The metadata schema
-is versioned in [`schema/skill-metadata.schema.json`](./schema/skill-metadata.schema.json),
-and a machine-readable index is generated with:
-
-```bash
-python3 scripts/build_metadata.py    # writes metadata.json (not committed)
-```
-
-CI validates the metadata and checks that every `webshare` command a skill
-references actually exists in the CLI — adding or changing a skill is just a
-repo commit, and a malformed skill fails the build.
-
 ## Contributing
 
 See [CONTRIBUTING.md](./CONTRIBUTING.md). In short: one directory per skill,
