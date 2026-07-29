@@ -6,6 +6,9 @@ Tests all proxies in a Webshare plan against a target URL, identifies which
 proxies/countries/ASNs are blocked, and outputs a structured report that an
 AI agent can use to drive replacements via the Webshare MCP.
 
+Plan and proxy data come from the webshare CLI (which reads WEBSHARE_API_KEY);
+only the target-site probes talk to the network directly.
+
 Usage:
     python optimize_proxies.py --target https://example.com
     python optimize_proxies.py --target https://example.com --plan-id 12345
@@ -14,66 +17,50 @@ Usage:
 
 import argparse
 import json
+import shutil
+import subprocess
 import sys
 import time
 import urllib.request
 import urllib.error
 import ssl
-import base64
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from collections import defaultdict
 
 
-WEBSHARE_API = "https://proxy.webshare.io/api/v2"
-
-
-def get_api_key():
-    import os
-    key = os.environ.get("WEBSHARE_API_KEY")
-    if not key:
-        print("ERROR: Set WEBSHARE_API_KEY environment variable", file=sys.stderr)
+def cli_json(*args):
+    """Run a webshare CLI command with --json and return the parsed output."""
+    cli = shutil.which("webshare")
+    if not cli:
+        print("ERROR: webshare CLI not found on PATH. Install it with "
+              "`brew install webshare-proxy/tap/webshare` or from "
+              "https://github.com/webshare-proxy/webshare-cli/releases",
+              file=sys.stderr)
         sys.exit(1)
-    return key
+    result = subprocess.run([cli, *args, "--json"],
+                            capture_output=True, text=True, timeout=120)
+    if result.returncode != 0:
+        print(f"ERROR: webshare {' '.join(args)} failed: "
+              f"{result.stderr.strip()}", file=sys.stderr)
+        sys.exit(1)
+    return json.loads(result.stdout)
 
 
-def api_get(path, api_key, params=None):
-    url = f"{WEBSHARE_API}{path}"
-    if params:
-        query = "&".join(f"{k}={v}" for k, v in params.items() if v is not None)
-        if query:
-            url += f"?{query}"
-    req = urllib.request.Request(url)
-    req.add_header("Authorization", f"Token {api_key}")
-    ctx = ssl.create_default_context()
-    with urllib.request.urlopen(req, context=ctx) as resp:
-        return json.loads(resp.read().decode())
+def fetch_all_proxies(plan_id):
+    proxies = cli_json("proxies", "list", "--plan", str(plan_id),
+                       "--mode", "direct")
+    # Residential pools have no per-proxy address; those can't be probed.
+    return [p for p in proxies if p.get("proxy_address")]
 
 
-def fetch_all_proxies(api_key, plan_id):
-    proxies = []
-    page = 1
-    while True:
-        data = api_get(f"/proxy/list/", api_key, {
-            "mode": "direct",
-            "page": page,
-            "page_size": 100,
-            "plan_id": plan_id,
-        })
-        proxies.extend(data.get("results", []))
-        if not data.get("next"):
-            break
-        page += 1
-    return proxies
-
-
-def get_active_plan(api_key):
-    data = api_get("/subscription/plan/", api_key, {"page_size": 100})
-    for plan in data.get("results", []):
-        if plan.get("status") == "active" and plan.get("product_id") != "free":
+def get_active_plan():
+    plans = cli_json("plans", "list")
+    active = [p for p in plans if p.get("status") == "active"]
+    for plan in active:
+        if plan.get("monthly_price", 0) > 0:
             return plan
-    for plan in data.get("results", []):
-        if plan.get("status") == "active":
-            return plan
+    if active:
+        return active[0]
     print("ERROR: No active plan found", file=sys.stderr)
     sys.exit(1)
 
@@ -320,19 +307,17 @@ def main():
     parser.add_argument("--sample", type=int, help="Test only N random proxies instead of all")
     args = parser.parse_args()
 
-    api_key = get_api_key()
-
     print(f"Target: {args.target}", file=sys.stderr)
 
     if args.plan_id:
-        plan = api_get(f"/subscription/plan/{args.plan_id}/", api_key)
+        plan = cli_json("plans", "show", str(args.plan_id))
     else:
-        plan = get_active_plan(api_key)
+        plan = get_active_plan()
     plan_id = plan["id"]
-    print(f"Plan: {plan_id} ({plan.get('product_id', '?')}, {plan.get('proxy_count', '?')} proxies, {plan.get('proxy_replacements_available', 0)} replacement credits)", file=sys.stderr)
+    print(f"Plan: {plan_id} ({plan.get('proxy_type', '?')}/{plan.get('proxy_subtype', '?')}, {plan.get('proxy_count', '?')} proxies, {plan.get('proxy_replacements_available', 0)} replacement credits)", file=sys.stderr)
 
     print("Fetching proxy list...", file=sys.stderr)
-    proxies = fetch_all_proxies(api_key, plan_id)
+    proxies = fetch_all_proxies(plan_id)
     print(f"Found {len(proxies)} proxies", file=sys.stderr)
 
     if args.sample and args.sample < len(proxies):
@@ -359,7 +344,7 @@ def main():
     output = {
         "target": args.target,
         "plan_id": plan_id,
-        "plan_product": plan.get("product_id"),
+        "plan_product": f"{plan.get('proxy_type', '?')}/{plan.get('proxy_subtype', '?')}",
         "summary": {
             "total_tested": analysis["total_proxies"],
             "successful": analysis["total_proxies"] - analysis["failed_proxies"],

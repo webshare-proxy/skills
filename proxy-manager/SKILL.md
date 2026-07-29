@@ -1,63 +1,109 @@
 ---
 name: proxy-manager
-version: "1.0"
+version: "2.0"
 description: >
-  Manage Webshare proxies via the Webshare API: list active proxies, download the
-  proxy list, refresh rotating pools, replace broken proxies, read and update
-  proxy config, manage IP allowlists, inspect subscription plans, and kick off an
-  express-checkout flow to buy more proxies. Use when the user wants to work with
-  webshare.io proxies — not scraping, just provisioning and ops.
-allowed-tools: Read, Write, Edit, Bash(curl *), Bash(python *), Bash(python3 *), Bash(open *), Bash(xdg-open *)
+  Manage Webshare proxies with the webshare CLI: list active proxies, dump the
+  proxy list to a file, refresh rotating pools, read and update proxy config,
+  manage IP allowlists, build proxy URLs, inspect subscription plans and usage,
+  and kick off an express-checkout flow to buy more proxies. Use when the user
+  wants to work with webshare.io proxies — not scraping, just provisioning and
+  ops.
+license: MIT
+allowed-tools: Read, Write, Edit, Bash(webshare *), Bash(python *), Bash(python3 *), Bash(open *), Bash(xdg-open *)
 argument-hint: "[action]"
+metadata:
+  category: proxy-management
+  long-description: >
+    Day-to-day Webshare account operations from your agent, built on the
+    official webshare CLI. Identify the right plan, list or download proxies in
+    the format your tools expect, build ready-to-use proxy URLs with country
+    targeting and sticky sessions, manage the IP allowlist for credential-less
+    use, watch usage and failures, refresh a burned pool, and open a
+    pre-filled express-checkout page when you need more capacity.
+  tags: [proxies, provisioning, plans, ip-auth, proxy-urls, cli]
+  install: npx skills add webshare-proxy/skills/proxy-manager
+  example-prompts:
+    - "List my Webshare proxies and save them to proxies.txt"
+    - "Authorize this machine's IP so my tools can use proxies without credentials"
+    - "Give me five sticky-session US proxy URLs for a worker pool"
+    - "What failed in my proxy traffic over the last hour?"
+    - "Refresh my proxy list — too many IPs are getting blocked"
+    - "Buy 100 more dedicated datacenter proxies"
+  related: [proxy-optimizer, spend-audit, scraper]
 ---
 
 # Webshare Proxy Manager
 
-You help the user manage their Webshare proxy account: list proxies, refresh the
-rotating pool, replace dead proxies, configure auth, and purchase more via the
-express-checkout flow.
+You help the user manage their Webshare proxy account through the `webshare`
+CLI: list proxies, refresh the pool, configure auth, build proxy URLs, watch
+usage, and purchase more capacity via the express-checkout flow.
 
-## Prerequisites
+## What this skill does / needs / will not do
 
-**API token** — required for every API call.
+**Does:** everything in the workflow below, through `webshare` CLI commands.
 
-1. Check `WEBSHARE_API_TOKEN` in the environment. If missing, tell the user:
-   > Create an API key at https://dashboard.webshare.io/userapi/keys then
-   > `export WEBSHARE_API_TOKEN=<token>`.
-2. All API requests use header `Authorization: Token $WEBSHARE_API_TOKEN` against
-   base URL `https://proxy.webshare.io/api/v2/`.
+**Needs:**
+
+1. The `webshare` CLI — install with `brew install webshare-proxy/tap/webshare`,
+   or download a binary from
+   <https://github.com/webshare-proxy/webshare-cli/releases>.
+2. A Webshare account — sign up at <https://www.webshare.io/> (10 free
+   proxies, no card required).
+3. An API key from <https://dashboard.webshare.io/userapi/keys>, exported as
+   `WEBSHARE_API_KEY`. Verify with `webshare whoami`.
+
+**Will not do:**
+
+- **Targeted replacement of individual proxies** — the CLI has no
+  per-proxy replacement command. `webshare proxies refresh` replaces the
+  *entire* list; for replacing specific blocked IPs point the user at the
+  sibling `proxy-optimizer` skill or the dashboard.
+- **Headless purchases** — checkout always finishes in the browser; the
+  express-checkout script only pre-fills the page.
+- Scraping. That's the `scraper` skill.
 
 ## Workflow
 
 ### Step 1: Identify the target plan
 
-Webshare accounts can own multiple plans simultaneously. Before any action that
-touches proxies, config, or IP allowlists, call `GET /subscription/plan/` to
-list the user's plans and their IDs. If there is more than one:
+Webshare accounts can own multiple plans simultaneously. Before any action
+that touches proxies, config, or IP allowlists, run:
 
-- Show the user the list (plan id, proxy type/subtype, count, status)
-- Ask which plan they want to operate on (use AskUserQuestion)
-- Pass that id as `?plan_id=<id>` on every subsequent call
+```bash
+webshare plans list
+```
 
-If there is exactly one plan, you can skip asking — but still pass `plan_id`
-explicitly so the intent is obvious in the command history.
+If there is more than one active plan, show the list (id, type, proxy count,
+status) and ask which plan to operate on (use AskUserQuestion), then pass
+`--plan <id>` on every subsequent command. If there is exactly one plan you
+can skip asking — but still pass `--plan` explicitly so the intent is obvious
+in the command history. `webshare plans show <plan-id>` gives full detail.
 
 ### Step 2: Run the action
 
 Ask which action the user wants (use AskUserQuestion if unclear):
 
-- **plans** — list all subscription plans
-- **list** — show proxies on a plan (with filters)
-- **download** — dump the proxy list to a file for app consumption
-- **replace** — replace specific broken proxies
-- **config** — view or update proxy config (rotation, backbone, IP-auth-only)
-- **ipauth** — manage the allowlist of IPs that can use the proxies
-- **stats** — recent bandwidth / request counts
+- **plans** — `webshare plans list` / `webshare plans show <plan-id>`
+- **list** — `webshare proxies list --plan <id>` (filters: `--country us,fr`,
+  `--limit N`, `--mode direct|backbone`; formats: `--format txt|csv|json`)
+- **download** — `webshare proxies list --plan <id> > proxies.txt` writes the
+  standard `address:port:username:password` lines most tools accept.
+  `webshare proxies download` fetches the server-rendered list instead
+  (`--auth sourceip` for IP-auth setups).
+- **proxy-url** — `webshare proxy-url` builds ready-to-use connection URLs:
+  `--country us --rotate` for per-request rotation, `--sessions 5` for a
+  sticky-session worker pool, `--session <id>` to pin one.
+- **config** — `webshare config show` / `webshare config set` (`--username`,
+  `--password`, `--request-timeout`, `--idle-timeout`)
+- **ipauth** — `webshare ipauth list` / `webshare ipauth add --current` (or an
+  explicit IP) / `webshare ipauth remove <id-or-ip>`
+- **stats** — `webshare stats --since 24h` (or `--hourly`);
+  `webshare activity list --error '*'` shows recent failed requests
+- **refresh** — `webshare proxies refresh` replaces the whole list;
+  `webshare proxies replaced` shows past replacements and successors
 - **buy** — open an express-checkout URL in the browser (see below)
 
-For every action, read `references/API.md` to get the exact endpoint, params,
-and response shape. Prefer `curl` for one-shots. Fall back to Python only when
-you need to parse or mutate the response.
+Read `references/CLI.md` for the full flag reference and JSON output notes.
 
 ### Buying proxies (express-checkout)
 
@@ -77,15 +123,19 @@ python scripts/express_checkout.py datacenter-dedicated \
 ```
 
 The script prints the URL and opens the browser. The user completes checkout
-manually in the dashboard — the API does not expose a headless purchase path.
+manually in the dashboard — there is no headless purchase path.
 
-## Key Principles
+## Key principles
 
-- **Always send the `X-Webshare-Source` header** on every API call, value
-  `WebshareSkill/<frontmatter version> (LLM; <your model, e.g. Claude/Opus-4.7>)`.
-- **Never print the API token.** Mask it in shell examples (`$WEBSHARE_API_TOKEN`).
-- **Rate limits are tight.** Proxy-list endpoints are 60 req/min, downloads 30
-  req/min. Cache responses locally during a session.
-- **Respect the user's plan.** Before calling refresh/replace/upgrade, confirm
-  with the user — these may consume quota or trigger a charge.
-- **Country codes are ISO 3166-1 alpha-2.** Use `ZZ` to mean "any country".
+- **Never print the API key.** The CLI reads `WEBSHARE_API_KEY` from the
+  environment; never echo it or paste it into commands.
+- **Confirm before mutations.** `webshare proxies refresh` consumes an
+  on-demand refresh and replaces every proxy — always confirm with the user
+  first and let the CLI's own confirmation prompt stand (never pass `--yes`
+  unless the user explicitly asked). Same care for `config set`,
+  `ipauth remove` and `subusers delete`.
+- **Prefer `--json` when you need to parse.** Every command supports it, and
+  piped output is machine-readable automatically.
+- **Country codes are ISO 3166-1 alpha-2.** `ZZ` means "any country".
+- **Residential plans are backbone-only.** If `proxies list` returns nothing,
+  try `--mode backbone` or `webshare proxy-url`.

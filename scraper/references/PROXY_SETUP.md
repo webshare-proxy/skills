@@ -33,6 +33,20 @@ PROXY_PASSWORD=your_webshare_password
 
 ### Webshare Rotating Proxy Setup
 
+With the `webshare` CLI installed (`brew install webshare-proxy/tap/webshare`)
+and `WEBSHARE_API_KEY` exported, build the rotating endpoint in one line:
+
+```bash
+# Full rotating proxy URL (credentials fetched from your proxy config)
+webshare proxy-url --rotate
+
+# Country-targeted, or a pool of sticky sessions for parallel workers
+webshare proxy-url --country us --rotate
+webshare proxy-url --sessions 5
+```
+
+Without the CLI, do it manually:
+
 1. Sign up at https://www.webshare.io/
 2. Go to Dashboard > Proxy > List
 3. Click "Rotating Proxy" tab
@@ -41,7 +55,17 @@ PROXY_PASSWORD=your_webshare_password
 
 ### Using a Proxy List
 
-For multiple static proxies, create a `proxies.txt` file:
+For multiple static proxies, dump your list with the CLI:
+
+```bash
+# address:port:username:password lines
+webshare proxies list > proxies.txt
+
+# Or filtered by country
+webshare proxies list --country us,fr > proxies.txt
+```
+
+Or create a `proxies.txt` file by hand:
 
 ```
 http://user:pass@host1:port
