@@ -1,0 +1,15 @@
+{
+  "name": "webshare",
+  "description": "The official catalog of Webshare proxy skills for coding agents.",
+  "owner": {
+    "name": "Webshare",
+    "url": "https://www.webshare.io/"
+  },
+  "plugins": [
+    {
+      "name": "webshare",
+      "source": "./",
+      "description": "Official Webshare proxy skills: manage proxies with the webshare CLI, optimize a pool for a target site, build Playwright scrapers, and audit proxy spend."
+    }
+  ]
+}

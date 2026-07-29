@@ -6,10 +6,10 @@ and any agent that supports the open Agent Skills standard.
 
 | Skill | Category | Purpose |
 |---|---|---|
-| [`proxy-manager`](./proxy-manager) | proxy-management | Manage a Webshare account with the `webshare` CLI: list/download proxies, build proxy URLs, IP allowlists, config, usage, buying more |
-| [`proxy-optimizer`](./proxy-optimizer) | proxy-management | Test your proxies against a specific target site, find blocked IPs by country/ASN/subnet, and replace exactly those |
-| [`scraper`](./scraper) | scraping | Build production-ready Playwright scrapers (Python or Node.js) with proxy support, stealth mode, and data storage |
-| [`spend-audit`](./spend-audit) | cost-optimization | Read-only audit of what you pay for vs. what you use, with dollar-quantified right-sizing recommendations |
+| [`proxy-manager`](./skills/proxy-manager) | proxy-management | Manage a Webshare account with the `webshare` CLI: list/download proxies, build proxy URLs, IP allowlists, config, usage, buying more |
+| [`proxy-optimizer`](./skills/proxy-optimizer) | proxy-management | Test your proxies against a specific target site, find blocked IPs by country/ASN/subnet, and replace exactly those |
+| [`scraper`](./skills/scraper) | scraping | Build production-ready Playwright scrapers (Python or Node.js) with proxy support, stealth mode, and data storage |
+| [`spend-audit`](./skills/spend-audit) | cost-optimization | Read-only audit of what you pay for vs. what you use, with dollar-quantified right-sizing recommendations |
 
 ## What is a skill?
 
@@ -20,11 +20,23 @@ commands to run, what to confirm with you first, and what it must not do.
 
 ## Installation
 
+With the [skills CLI](https://github.com/vercel-labs/skills) (Claude Code,
+Cursor, and any agent supporting the Agent Skills standard):
+
 ```bash
-npx skills add webshare-proxy/skills/proxy-manager
-npx skills add webshare-proxy/skills/proxy-optimizer
-npx skills add webshare-proxy/skills/scraper
-npx skills add webshare-proxy/skills/spend-audit
+npx skills add webshare-proxy/skills            # pick interactively
+npx skills add webshare-proxy/skills --skill proxy-manager
+npx skills add webshare-proxy/skills --skill proxy-optimizer
+npx skills add webshare-proxy/skills --skill scraper
+npx skills add webshare-proxy/skills --skill spend-audit
+```
+
+Or install the whole catalog as a Claude Code plugin — skills become
+`/proxy-manager`-style shortcuts and also trigger automatically:
+
+```
+/plugin marketplace add webshare-proxy/skills
+/plugin install webshare@webshare
 ```
 
 ## Prerequisites
@@ -72,6 +84,6 @@ MIT, see [LICENSE](./LICENSE).
 
 Previously separate repos, now consolidated here:
 [`webshare-spend-audit`](https://github.com/webshare-proxy/webshare-spend-audit) →
-[`spend-audit`](./spend-audit) ·
+[`spend-audit`](./skills/spend-audit) ·
 [`webshare-proxy-optimizer`](https://github.com/webshare-proxy/webshare-proxy-optimizer) →
-[`proxy-optimizer`](./proxy-optimizer)
+[`proxy-optimizer`](./skills/proxy-optimizer)

@@ -76,7 +76,7 @@
         },
         "install": {
           "type": "string",
-          "pattern": "^npx skills add webshare-proxy/skills/[a-z0-9-]+$",
+          "pattern": "^npx skills add webshare-proxy/skills --skill [a-z0-9-]+$",
           "description": "The one-line install command shown on the catalog page."
         },
         "example_prompts": {
@@ -87,7 +87,7 @@
         },
         "source_path": {
           "type": "string",
-          "pattern": "^[a-z0-9-]+/SKILL\\.md$",
+          "pattern": "^skills/[a-z0-9-]+/SKILL\\.md$",
           "description": "Repo-relative path to the skill's SKILL.md."
         },
         "related_skills": {

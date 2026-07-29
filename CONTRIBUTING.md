@@ -1,18 +1,23 @@
 # Contributing a skill
 
-Adding a skill is one commit: a new top-level directory with a `SKILL.md`.
-CI validates everything; if it's green, the catalog picks it up.
+Adding a skill is one commit: a new directory under `skills/` with a
+`SKILL.md`. CI validates everything; if it's green, the catalog picks it up.
 
 ## Layout
 
 ```
-your-skill/
+skills/your-skill/
   SKILL.md            # required — instructions + frontmatter (see below)
   scripts/            # optional helper scripts the skill runs
   references/         # optional docs the skill loads on demand
 ```
 
 The directory name is the skill's slug: lowercase, digits and hyphens only.
+The `skills/<name>/SKILL.md` layout is what both the
+[skills CLI](https://github.com/vercel-labs/skills) and the Claude Code
+plugin system expect, so the repo works as a plugin
+(`/plugin marketplace add webshare-proxy/skills`) with `/your-skill`
+slash-command invocation out of the box.
 
 ## SKILL.md frontmatter
 
@@ -34,7 +39,7 @@ metadata:
     Catalog-page prose: a paragraph on what the skill actually does for the
     user, in plain language.
   tags: [lowercase, hyphenated, max-10]
-  install: npx skills add webshare-proxy/skills/your-skill
+  install: npx skills add webshare-proxy/skills --skill your-skill
   example-prompts:
     - "A real prompt a user would type to trigger this skill"
   related: [other-skill-slugs-in-this-catalog]

@@ -23,7 +23,7 @@ metadata:
     replacement itself runs through the Webshare MCP, since per-IP
     replacement is not in the CLI yet.
   tags: [proxies, blocking, replacement, asn, scraping-targets]
-  install: npx skills add webshare-proxy/skills/proxy-optimizer
+  install: npx skills add webshare-proxy/skills --skill proxy-optimizer
   example-prompts:
     - "My proxies keep failing on example.com — figure out which ones and fix it"
     - "Optimize my proxy pool for https://www.example.com"

@@ -20,7 +20,7 @@ metadata:
     CSV, JSON or SQLite. It then test-runs the selectors and iterates until
     the script works end to end.
   tags: [scraping, playwright, patchright, stealth, python, nodejs]
-  install: npx skills add webshare-proxy/skills/scraper
+  install: npx skills add webshare-proxy/skills --skill scraper
   example-prompts:
     - "Scrape the product names and prices from this category page"
     - "Build me a Python scraper for this site with stealth mode and CSV output"

@@ -21,7 +21,7 @@ metadata:
     use, watch usage and failures, refresh a burned pool, and open a
     pre-filled express-checkout page when you need more capacity.
   tags: [proxies, provisioning, plans, ip-auth, proxy-urls, cli]
-  install: npx skills add webshare-proxy/skills/proxy-manager
+  install: npx skills add webshare-proxy/skills --skill proxy-manager
   example-prompts:
     - "List my Webshare proxies and save them to proxies.txt"
     - "Authorize this machine's IP so my tools can use proxies without credentials"

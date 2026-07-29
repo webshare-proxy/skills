@@ -156,8 +156,10 @@ def main():
 
     checked = 0
     errors = []
-    skill_dirs = [d for d in REPO_ROOT.iterdir()
-                  if d.is_dir() and (d / "SKILL.md").is_file()]
+    skills_dir = REPO_ROOT / "skills"
+    skill_dirs = [d for d in skills_dir.iterdir()
+                  if d.is_dir() and (d / "SKILL.md").is_file()] \
+        if skills_dir.is_dir() else []
     for skill_dir in sorted(skill_dirs):
         for file in sorted(skill_dir.rglob("*")):
             if file.suffix not in (".md", ".py"):

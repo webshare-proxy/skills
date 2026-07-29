@@ -21,7 +21,7 @@ metadata:
     read-only: its command allowlist excludes every state-changing operation,
     so it can recommend but never act.
   tags: [cost, savings, audit, plans, billing, read-only]
-  install: npx skills add webshare-proxy/skills/spend-audit
+  install: npx skills add webshare-proxy/skills --skill spend-audit
   example-prompts:
     - "Audit my Webshare spend and tell me where I'm wasting money"
     - "Are any of my proxy plans oversized for what I actually use?"

@@ -27,6 +27,7 @@ import yaml
 import jsonschema
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
+SKILLS_DIR = REPO_ROOT / "skills"
 SCHEMA_PATH = REPO_ROOT / "schema" / "skill-metadata.schema.json"
 OUTPUT_PATH = REPO_ROOT / "metadata.json"
 
@@ -76,7 +77,7 @@ def build_entry(skill_dir):
         "slug": slug,
         "name": str(fm.get("name", "")),
         "short_description": collapse(fm.get("description", "")),
-        "source_path": f"{slug}/SKILL.md",
+        "source_path": f"skills/{slug}/SKILL.md",
     }
 
     meta = fm.get("metadata")
@@ -105,11 +106,11 @@ def main():
     args = parser.parse_args()
 
     skill_dirs = sorted(
-        d for d in REPO_ROOT.iterdir()
+        d for d in SKILLS_DIR.iterdir()
         if d.is_dir() and (d / "SKILL.md").is_file()
-    )
+    ) if SKILLS_DIR.is_dir() else []
     if not skill_dirs:
-        fail("no skill directories (containing SKILL.md) found")
+        fail("no skill directories (skills/<name>/SKILL.md) found")
 
     index = {
         "schema_version": "1",
