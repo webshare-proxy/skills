@@ -1,0 +1,30 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  validate-metadata:
+    name: Validate skill metadata
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install pyyaml jsonschema
+      - run: python3 scripts/build_metadata.py --check
+
+  validate-cli-commands:
+    name: Validate referenced CLI commands
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.25"
+      - name: Install the webshare CLI
+        run: go install github.com/webshare-proxy/webshare-cli@latest
+      - run: python3 scripts/check_cli_commands.py --cli "$(go env GOPATH)/bin/webshare-cli"

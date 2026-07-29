@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/webshare-proxy/skills/main/schema/skill-metadata.schema.json",
+  "title": "Webshare skills catalog metadata",
+  "description": "Schema for the generated metadata.json catalog index. Version 1. The source of truth is each skill's SKILL.md frontmatter; scripts/build_metadata.py generates and validates the index. Bump schema_version (and this file's $id path if the change is breaking) when the shape changes.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "repository", "skills"],
+  "properties": {
+    "schema_version": {
+      "const": "1"
+    },
+    "repository": {
+      "const": "webshare-proxy/skills"
+    },
+    "skills": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/skill" }
+    }
+  },
+  "$defs": {
+    "skill": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "slug",
+        "name",
+        "short_description",
+        "long_description",
+        "category",
+        "tags",
+        "install",
+        "example_prompts",
+        "source_path",
+        "related_skills"
+      ],
+      "properties": {
+        "slug": {
+          "type": "string",
+          "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+          "maxLength": 64,
+          "description": "Directory name of the skill; unique within the catalog."
+        },
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+          "maxLength": 64,
+          "description": "Skill name from SKILL.md frontmatter; must equal the slug."
+        },
+        "short_description": {
+          "type": "string",
+          "minLength": 20,
+          "maxLength": 1024,
+          "description": "The frontmatter description — what the skill does and when to use it."
+        },
+        "long_description": {
+          "type": "string",
+          "minLength": 50,
+          "maxLength": 4000,
+          "description": "Catalog-page prose from frontmatter metadata.long-description."
+        },
+        "category": {
+          "enum": ["proxy-management", "scraping", "cost-optimization", "account"]
+        },
+        "tags": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 10,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+            "maxLength": 32
+          }
+        },
+        "install": {
+          "type": "string",
+          "pattern": "^npx skills add webshare-proxy/skills/[a-z0-9-]+$",
+          "description": "The one-line install command shown on the catalog page."
+        },
+        "example_prompts": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 6,
+          "items": { "type": "string", "minLength": 10, "maxLength": 200 }
+        },
+        "source_path": {
+          "type": "string",
+          "pattern": "^[a-z0-9-]+/SKILL\\.md$",
+          "description": "Repo-relative path to the skill's SKILL.md."
+        },
+        "related_skills": {
+          "type": "array",
+          "maxItems": 8,
+          "uniqueItems": true,
+          "items": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$" },
+          "description": "Slugs of other skills in this catalog; validated to exist."
+        }
+      }
+    }
+  }
+}

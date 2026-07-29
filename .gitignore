@@ -1,0 +1,7 @@
+# Generated catalog index — build with scripts/build_metadata.py.
+# Deliberately not committed: the dashboard developer generates and
+# consumes it manually; CI only validates that it CAN be built.
+metadata.json
+
+__pycache__/
+.DS_Store
