@@ -25,6 +25,7 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: "1.25"
+          cache: false
       - name: Install the webshare CLI
         run: go install github.com/webshare-proxy/webshare-cli@latest
       - run: python3 scripts/check_cli_commands.py --cli "$(go env GOPATH)/bin/webshare-cli"
