@@ -1,5 +1,0 @@
-{
-  "name": "webshare-proxy-optimizer",
-  "description": "Optimize your Webshare proxy pool for specific target websites. Tests proxies, identifies blocked IPs by country/ASN/subnet, and replaces them via the Webshare MCP.",
-  "version": "1.0.0"
-}
