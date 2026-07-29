@@ -13,7 +13,7 @@
 6. Replaces them via `create_proxy_replacement` (with dry-run confirmation)
 7. Re-tests to verify the fix
 
-**MCP tools used**: `list_plans`, `list_proxies`, `get_proxy_config`, `get_proxy_config_stats`, `create_proxy_replacement`, `get_proxy_replacement`
+**Data via the webshare CLI** (`plans list`, `proxies list`); **MCP tools used for replacement**: `create_proxy_replacement`, `get_proxy_replacement`
 
 ### Example
 
@@ -29,7 +29,7 @@ The agent starts by asking how many proxies to test:
 Then runs the test:
 
 ```
-$ python optimize_proxies.py --target https://www.google.com --sample 20
+$ python3 scripts/optimize_proxies.py --target https://www.google.com --sample 20
 
 Testing 20 proxies against https://www.google.com (10 workers, 15s timeout)...
   [1/20]  31.56.138.150 (DE) -> OK 200 (408ms)
