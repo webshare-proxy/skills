@@ -64,11 +64,3 @@ commands (not raw HTTP), and make CI pass.
 ## License
 
 MIT, see [LICENSE](./LICENSE).
-
----
-
-Previously separate repos, now consolidated here:
-[`webshare-spend-audit`](https://github.com/webshare-proxy/webshare-spend-audit) →
-[`spend-audit`](./skills/spend-audit) ·
-[`webshare-proxy-optimizer`](https://github.com/webshare-proxy/webshare-proxy-optimizer) →
-[`proxy-optimizer`](./skills/proxy-optimizer)
