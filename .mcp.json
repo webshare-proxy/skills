@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "webshare": {
+      "type": "http",
+      "url": "https://mcp.webshare.io/"
+    }
+  }
+}
