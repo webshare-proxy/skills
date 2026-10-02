@@ -48,7 +48,8 @@ The repository is also a [Gemini CLI](https://geminicli.com/) extension
 gemini extensions install https://github.com/webshare-proxy/skills
 ```
 
-GitHub Copilot CLI reads the same plugin manifest:
+GitHub Copilot CLI reads its own manifest (`.github/plugin/plugin.json`), which
+loads the same skills and MCP server:
 
 ```bash
 copilot plugin marketplace add webshare-proxy/skills
