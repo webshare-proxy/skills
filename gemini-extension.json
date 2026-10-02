@@ -1,6 +1,6 @@
 {
   "name": "webshare",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Official Webshare proxy skills: manage proxies with the webshare CLI, optimize a pool for a target site, build Playwright scrapers, and audit proxy spend.",
   "mcpServers": {
     "webshare": {
