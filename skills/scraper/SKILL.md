@@ -187,6 +187,8 @@ After generating the script:
 If you encounter issues during exploration:
 - **Site blocks access**: Suggest enabling stealth mode with patchright
 - **Dynamic content not loading**: Try `wait_until="networkidle"` or explicit waits
-- **CAPTCHA detected**: Inform user this site has strong protection, suggest manual solving
-  or CAPTCHA-solving services
-- **Login required**: Help user set up cookie/session-based authentication in the script
+- **CAPTCHA detected**: Inform the user that the site has anti-bot protection. Suggest manual
+  solving. Do not recommend CAPTCHA-solving services or automated bypass methods. Do not
+  advise authenticated or post-login scraping.
+- **Login required**: Inform the user that the content is behind a login and is out of
+  scope. Do not help set up scripted logins, cookies, or authenticated sessions.
